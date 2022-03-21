@@ -3,7 +3,7 @@ from bindings import WasiCe
 import sys
 import wasmtime
 
-from cloudevents.http import CloudEvent, to_binary
+from cloudevents.http import CloudEvent, to_structured
 import requests
 
 from bindings import Err
@@ -18,16 +18,12 @@ def run(cloudevent: CloudEvent) -> None:
     wasi.inherit_stdout()
     wasi.inherit_stderr()
     store.set_wasi(wasi)
-
-    # headers, body = to_binary(cloudevent)
-
     wasm = WasiCe(store, linker, module)
-    event = str(cloudevent)
 
-    res = wasm.ce_handler(store, event)
-    
-    event.drop(store)
-    res.value.drop(store)
+    header, body = to_structured(cloudevent)
+    body = body.decode("utf-8")
+
+    res = wasm.ce_handler(store, body)
     
     
 
@@ -38,6 +34,6 @@ if __name__ == "__main__":
         "type": "com.microsoft.steelthread.wasm",
         "source": "https://example.com/event-producer",
     }
-    data = {"message": "Hello World!"}
+    data = "hello world"
     event = CloudEvent(attributes, data)
     run(event)

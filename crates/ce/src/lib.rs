@@ -8,7 +8,8 @@ struct WasiCe {}
 
 impl wasi_ce::WasiCe for WasiCe {
     fn ce_handler(event: String) -> Result<String,Error> {
-        let event_: Event = serde_json::from_str(event.as_str()).unwrap();
+        println!("event is {}", event);
+        let event_: Event = serde_json::from_str(&event).unwrap();
         println!("event id: {}", event_.id());
         Ok(event)
     }
