@@ -15,6 +15,7 @@ def home(path):
         "source": f"http://127.0.0.1:3030/{path}",
     }
     event = CloudEvent(attributes, request.data)
+    
 
     # you can access cloudevent fields as seen below
     print(

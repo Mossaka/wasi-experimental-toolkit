@@ -1,6 +1,5 @@
-from bindings import Cloudevent
-from typing import Tuple, List
-import bindings as b
+
+from bindings import WasiCe
 import sys
 import wasmtime
 
@@ -20,26 +19,12 @@ def run(cloudevent: CloudEvent) -> None:
     wasi.inherit_stderr()
     store.set_wasi(wasi)
 
-    headers, body = to_binary(cloudevent)
+    # headers, body = to_binary(cloudevent)
 
-
-    wasm = b.WasiCe(store, linker, module)
-    event = Cloudevent.create(store, wasm)
-    event.set_id(store, headers['ce-id'])
-    event.set_source(store, headers['ce-source'])
-    event.set_type(store, headers['ce-type'])
-    event.set_specversion(store, headers['ce-specversion'])
-    event.set_time(store, headers['ce-time'])
-    event.set_data(store, body)
+    wasm = WasiCe(store, linker, module)
+    event = str(cloudevent)
 
     res = wasm.ce_handler(store, event)
-
-    assert(event.get_id(store) == headers['ce-id'])
-    assert(event.get_source(store) == headers['ce-source'])
-    assert(event.get_type(store) == headers['ce-type'])
-    assert(event.get_specversion(store) == headers['ce-specversion'])
-    assert(event.get_time(store) == headers['ce-time'])
-    assert(event.get_data(store) == body)
     
     event.drop(store)
     res.value.drop(store)
